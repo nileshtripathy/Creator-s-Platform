@@ -1,7 +1,10 @@
 import { io } from "socket.io-client";
 
-const URL = "http://localhost:3000";
+const token = localStorage.getItem("token");
 
-export const socket = io(URL, {
-  autoConnect: false
+export const socket = io("http://localhost:3000", {
+  autoConnect: false,
+  auth: {
+    token
+  }
 });
