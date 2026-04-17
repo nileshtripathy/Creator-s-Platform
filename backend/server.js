@@ -1,14 +1,11 @@
-const express = require("express");
 const http = require("http");
-const cors = require("cors");
 const { Server } = require("socket.io");
 const jwt = require("jsonwebtoken");
 
-const app = express();
+// Import the app
+const app = require("./app");
 
-app.use(cors());
-app.use(express.json());
-
+// Create http server and socket.io
 const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
@@ -44,17 +41,14 @@ io.on("connection", (socket) => {
   });
 });
 
+// Mount post routes with real io
 const postRoutes = require("./routes/post")(io);
 app.use("/api/posts", postRoutes);
 
 const authRoutes = require("./routes/auth");
 app.use("/api/auth", authRoutes);
 
-app.get("/api/test", (req, res) => {
-  res.json({ message: "REST API working ✅" });
-});
-
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
