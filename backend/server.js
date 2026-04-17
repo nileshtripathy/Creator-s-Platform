@@ -47,6 +47,9 @@ io.on("connection", (socket) => {
 const postRoutes = require("./routes/post")(io);
 app.use("/api/posts", postRoutes);
 
+const authRoutes = require("./routes/auth");
+app.use("/api/auth", authRoutes);
+
 app.get("/api/test", (req, res) => {
   res.json({ message: "REST API working ✅" });
 });
