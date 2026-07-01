@@ -1,34 +1,56 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { socket } from "../services/socket";
+import toast from "react-hot-toast";
 
 function Dashboard() {
+  const [title, setTitle] = useState("");
+
   useEffect(() => {
-    // Connect manually
     socket.connect();
 
-    // Events
     socket.on("connect", () => {
       console.log("🟢 Connected:", socket.id);
     });
 
-    socket.on("disconnect", () => {
-      console.log("🔴 Disconnected");
+    // 🔥 Listen for new post
+    socket.on("newPost", (data) => {
+      toast.success(`New post: ${data.title}`);
     });
 
-    socket.on("connect_error", (err) => {
-      console.error("❌ Error:", err.message);
-    });
-
-    // Cleanup
     return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("connect_error");
+      socket.off("newPost");
       socket.disconnect();
     };
   }, []);
 
-  return <h1>Dashboard 🚀</h1>;
+  const createPost = async () => {
+    const token = localStorage.getItem("token");
+
+    await fetch("http://localhost:3000/api/posts/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ title })
+    });
+
+    setTitle("");
+  };
+
+  return (
+    <div>
+      <h1>Dashboard</h1>
+
+      <input
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder="Enter post title"
+      />
+
+      <button onClick={createPost}>Create Post</button>
+    </div>
+  );
 }
 
 export default Dashboard;
